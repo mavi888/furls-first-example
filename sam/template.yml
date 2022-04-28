@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+ 
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handler.function
+      Runtime: nodejs14.x
+      Environment:
+          Variables:
+            TABLE_NAME: !Ref ExampleTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - "*"
+          AllowHeaders: 
+            - "*"
+          AllowMethods:
+            - "*"
+
+  ExampleTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "name"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "name"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+  
+Outputs:
+  FunctionURLEndpoint:
+    Description: MyFunction function URL
+    Value: !GetAtt MyFunctionUrl.FunctionUrl
